@@ -1,18 +1,18 @@
 /* Input pins ******************************** */
-#define JOYSTICK_X   A0
-#define JOYSTICK_Y   A1
-#define GRAY_WIRE     2
-#define BLUE_WIRE     3
+#define JOYSTICK_X   A4
+#define JOYSTICK_Y   A5
+#define GRAY_WIRE    A0
+#define BLUE_WIRE    A1
 
 /* Output Pins ******************************* */
-#define BROWN_WIRE    4
-#define WHITE_WIRE    5
-#define THROTTLE_ENBL 6
-#define THROTTLE_1    7
-#define THROTTLE_2    8
-#define STEER_ENBL    9
-#define STEER_1      10
-#define STEER_2      11
+#define BROWN_WIRE   A2
+#define WHITE_WIRE   A3
+#define STEER_ENBL    2
+#define STEER_1       3
+#define STEER_2       4
+#define THROTTLE_ENBL 5
+#define THROTTLE_1    6
+#define THROTTLE_2    7
 
 /* Control Values **************************** */
 #define STEER_RIGHT   0
@@ -151,6 +151,44 @@ void readSteeringPosition(){
   
 }
 
+/* Debug Stuff **************************** */
+
+boolean debug_on = true;
+
+void printSteeringPosition(){
+  
+  Serial.print("Steering position: ");
+
+  switch(steeringPos){
+    
+    case RIGHT_MAX:
+      Serial.print("RIGHT_MAX");
+      break;
+      
+    case RIGHT:
+      Serial.print("RIGHT");
+      break;
+      
+    case CENTER:
+      Serial.print("CENTER");
+      break;
+      
+    case LEFT:
+      Serial.print("LEFT");
+      break;
+      
+    case LEFT_MAX:
+      Serial.print("LEFT_MAX");
+      break;
+      
+    case INVALID:
+      Serial.print("INVALID");
+      break;
+  }
+  
+  Serial.print("\n");
+}
+
 /* ******************************************* */
 
 void setup() {
@@ -185,6 +223,8 @@ void setup() {
   readSteeringPosition();
   lastSteerPos = steeringPos;
 
+  if(debug_on)
+    Serial.begin(115200);
 }
 
 void loop() {
@@ -195,4 +235,8 @@ void loop() {
   //handleSteering();
   delay(20);
   
+  if(debug_on){
+    delay(30);
+    printSteeringPosition();
+  }
 }
