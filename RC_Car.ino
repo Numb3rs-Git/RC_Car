@@ -35,10 +35,84 @@ uint8_t steeringMode, lastSteerMode;
 uint8_t steeringPos, lastSteerPos;
 uint8_t throttleMode, lastThrotMode, throttleLevel;
 
+/* Helpers *********************************** */
+
+void brakeSteering(){
+  digitalWrite(STEER_1, 0);
+  digitalWrite(STEER_2, 0);
+  digitalWrite(STEER_ENBL, 0);
+}
+
+void steerRight(){
+  brakeSteering()
+  delay(100);
+  digitalWrite(STEER_1, 1);
+  digitalWrite(STEER_2, 0);
+  digitalWrite(STEER_ENBL, 1);
+}
+
+void steerLeft(){
+  brakeSteering();
+  delay(100);
+  digitalWrite(STEER_1, 0);
+  digitalWrite(STEER_2, 1);
+  digitalWrite(STEER_ENBL, 1);
+}
+
 /* Output Handlers *************************** */
 
 void handleSteering(){
   
+  // handle invalid steering position (cease output)
+  if(steeringPos == INVALID)
+    brakeSteering();
+  
+  // handle right command
+  else if(steeringMode == STEER_RIGHT){
+    
+    // already max right
+    if(steeringPos == RIGHT_MAX)
+      brakeSteering;
+    
+    // not max right and changing modes
+    else if(steeringMode != lastSteerMode)
+      steerRight();
+  }
+  
+  // handle center command
+  else if(steeringMode == STEER_CENTER){
+    
+    // already centered
+    if(steeringPos == CENTER)
+      brakeSteering();
+    
+    // if changing modes
+    else if(steeringMode != lastSteerMode){
+    
+      // left of center
+      if(steeringPos == LEFT || steeringPos == LEFT_MAX)
+        steerRight();
+    
+      // right of center
+      else if(steeringPos == RIGHT || steeringPos == RIGHT_MAX)
+        steerLeft();
+    }
+  }
+  
+  // handle left command
+  else if(steeringMode == STEER_LEFT){
+    
+    // already max left
+    if(steeringPos == LEFT_MAX)
+      brakeSteering();
+    
+    // not max left and changing modes
+    else if(steeringMode != lastSteerMode)
+      steerLeft();
+  }
+  
+  lastSteerMode = steeringMode;
+  lastSteerPos = steeringPos;
 }
 
 void handleThrottle(){
@@ -50,6 +124,7 @@ void handleThrottle(){
     digitalWrite(THROTTLE_1, 0);
     digitalWrite(THROTTLE_2, 0);
     delay(200); // be nice to h-bridge
+    
     
     // set new throttle mode
     digitalWrite(THROTTLE_1, !throttleMode);
@@ -153,7 +228,7 @@ void readSteeringPosition(){
 
 /* Debug Stuff **************************** */
 
-boolean debug_on = true;
+boolean debug_on = false;
 
 void printSteeringPosition(){
   
@@ -223,16 +298,16 @@ void setup() {
   readSteeringPosition();
   lastSteerPos = steeringPos;
 
-  if(debug_on)
-    Serial.begin(115200);
+  //debug_on = true;
+  //Serial.begin(115200);
 }
 
 void loop() {
 
-  //readControls();
+  readControls();
   readSteeringPosition();
   //handleThrottle();
-  //handleSteering();
+  handleSteering();
   delay(20);
   
   if(debug_on){
