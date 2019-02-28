@@ -44,7 +44,7 @@ void brakeSteering(){
 }
 
 void steerRight(){
-  brakeSteering()
+  brakeSteering();
   delay(100);
   digitalWrite(STEER_1, 1);
   digitalWrite(STEER_2, 0);
@@ -149,9 +149,9 @@ void readControls(){
 
   // get steering mode
   if(joystick_x < 461)
-    steeringMode = STEER_RIGHT;
-  else if(joystick_x > 562)
     steeringMode = STEER_LEFT;
+  else if(joystick_x > 562)
+    steeringMode = STEER_RIGHT;
   else
     steeringMode = STEER_CENTER;
   
@@ -264,6 +264,28 @@ void printSteeringPosition(){
   Serial.print("\n");
 }
 
+void printSteeringMode(){
+  
+  Serial.print("Steering mode: ");
+  
+  switch(steeringMode){
+    
+    case STEER_RIGHT:
+      Serial.print("STEER_RIGHT");
+      break;
+      
+    case STEER_CENTER:
+      Serial.print("STEER_CENTER");
+      break;
+      
+    case STEER_LEFT:
+      Serial.print("STEER_LEFT");
+      break;
+  }
+  
+  Serial.print("\n"); 
+}
+
 /* ******************************************* */
 
 void setup() {
@@ -312,6 +334,7 @@ void loop() {
   
   if(debug_on){
     delay(30);
+    printSteeringMode();
     printSteeringPosition();
   }
 }
